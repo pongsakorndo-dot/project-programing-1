@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Main Warehouse",
+    "code": "WH-001",
+    "type": "main"
+  },
+  {
+    "name": "Branch A",
+    "code": "WH-002",
+    "type": "branch"
+  }
+]

@@ -1,0 +1,50 @@
+[
+    {
+        "sku": "SKU-001",
+        "name": "คีย์บอร์ดไร้สาย (Wireless Keyboard)",
+        "category": "Electronics",
+        "unit": "Pcs",
+        "cost_price": 450.0,
+        "sell_price": 890.0,
+        "reorder_point": 10,
+        "stock": 19,
+        "warehouse_stock": {
+            "Main Warehouse": 15,
+            "Branch A": 4
+        }
+    },
+    {
+        "sku": "SKU-002",
+        "name": "เมาส์เพื่อสุขภาพ (Ergonomic Mouse)",
+        "category": "Electronics",
+        "unit": "Pcs",
+        "cost_price": 300.0,
+        "sell_price": 590.0,
+        "reorder_point": 5,
+        "stock": 3
+    },
+    {
+        "sku": "SKU-003",
+        "name": "USB Cable",
+        "category": "Accessories",
+        "unit": "Box",
+        "cost_price": 25.0,
+        "sell_price": 49.0,
+        "reorder_point": 6,
+        "stock": 17
+    },
+    {
+        "sku": "SKU-900",
+        "name": "Demo Item",
+        "category": "Accessories",
+        "unit": "Pcs",
+        "cost_price": 10.0,
+        "sell_price": 15.0,
+        "reorder_point": 3,
+        "warehouse": "Main Warehouse",
+        "stock": 20,
+        "warehouse_stock": {
+            "Main Warehouse": 20
+        }
+    }
+]

@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% block title %}Advanced Inventory Management{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold mb-1"><i class="fa-solid fa-warehouse text-info me-2"></i> Advanced Inventory Operations</h2>
+        <p class="text-muted mb-0">การโอนย้ายคลังสินค้า ตรวจนับและปรับปรุงยอด สแกนบาร์โค้ด คาดการณ์สินค้า และส่งออก Excel</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-camera me-2 text-success"></i> Mobile Barcode / QR Scanner</h5>
+            <div class="border border-secondary rounded bg-dark p-3 mb-3 text-center" id="scanner-wrapper">
+                <div id="barcode-reader" style="width: 100%; min-height: 240px; border-radius: 12px; background: #000;"></div>
+            </div>
+            <button class="btn btn-success w-100" id="start-scan-btn"><i class="fa-solid fa-camera me-2"></i> Start Camera Scan</button>
+            <div class="mt-3">
+                <label class="form-label text-muted small fw-bold">Scanned SKU</label>
+                <input id="scanner-output" class="form-control" placeholder="Click scan and confirm SKU here" />
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-right-left me-2 text-info"></i> Stock Transfer</h5>
+            <form id="transfer-form">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">SKU</label>
+                    <select id="transfer-sku" class="form-select" required></select>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">From Warehouse</label>
+                        <select id="transfer-source" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">To Warehouse</label>
+                        <select id="transfer-destination" class="form-select" required></select>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label text-muted small fw-bold">Transfer Quantity</label>
+                    <input type="number" id="transfer-qty" class="form-control" min="1" value="1" required>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label text-muted small fw-bold">Reason</label>
+                    <input type="text" id="transfer-reason" class="form-control" placeholder="Branch replenishment" value="Inter-warehouse transfer">
+                </div>
+                <button class="btn btn-primary w-100 mt-4" type="submit"><i class="fa-solid fa-arrow-right-arrow-left me-2"></i> Transfer Stock</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-clipboard-check me-2 text-warning"></i> Stock Count & Reconciliation</h5>
+            <form id="reconcile-form">
+                <div class="mb-3">
+                    <label class="form-label text-muted small fw-bold">SKU</label>
+                    <select id="reconcile-sku" class="form-select" required></select>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">Warehouse</label>
+                        <select id="reconcile-warehouse" class="form-select" required></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label text-muted small fw-bold">System Quantity</label>
+                        <input type="number" id="system-qty" class="form-control" min="0" value="0" required>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label text-muted small fw-bold">Physical Quantity</label>
+                    <input type="number" id="physical-qty" class="form-control" min="0" value="0" required>
+                </div>
+                <div class="mt-3">
+                    <label class="form-label text-muted small fw-bold">Variance Note</label>
+                    <input type="text" id="reconcile-note" class="form-control" placeholder="Cycle count / damaged item / shrinkage">
+                </div>
+                <button class="btn btn-warning w-100 mt-4 text-dark fw-bold" type="submit"><i class="fa-solid fa-arrows-rotate me-2"></i> Reconcile Stock</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-chart-line me-2 text-danger"></i> Demand Forecast</h5>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>SKU</th>
+                            <th>Avg / Day</th>
+                            <th>7-Day Need</th>
+                            <th>Reorder</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecast-table-body">
+                        <tr><td colspan="4" class="text-center text-muted">Loading forecast...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-file-excel me-2 text-success"></i> Excel Import / Export</h5>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <a href="/api/reports/export-stock?format=csv" class="btn btn-outline-success"><i class="fa-solid fa-download me-2"></i> Export CSV</a>
+                <a href="/api/reports/export-stock?format=xlsx" class="btn btn-success"><i class="fa-solid fa-file-excel me-2"></i> Export XLSX</a>
+            </div>
+            <form id="bulk-import-form" enctype="multipart/form-data">
+                <label class="form-label text-muted small fw-bold">Bulk Product Import</label>
+                <input type="file" id="import-file" class="form-control" accept=".csv,.xlsx,.xls" required>
+                <button class="btn btn-primary mt-3 w-100" type="submit"><i class="fa-solid fa-upload me-2"></i> Upload Excel / CSV</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-4 h-100">
+            <h5 class="fw-bold mb-3 text-light"><i class="fa-solid fa-boxes-stacked me-2 text-info"></i> Lot & Expiration Tracker</h5>
+            <div class="mb-3">
+                <label class="form-label text-muted small fw-bold">Select SKU</label>
+                <select id="lot-sku" class="form-select"></select>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Lot</th>
+                            <th>Warehouse</th>
+                            <th>Expiry</th>
+                            <th>Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lot-table-body">
+                        <tr><td colspan="4" class="text-center text-muted">No lot data.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script>
+    let activeScanner = null;
+
+    function populateSkuSelect(selectId, products) {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const values = products.map(p => `<option value="${p.sku}">${p.sku} - ${p.name}</option>`).join('');
+        select.innerHTML = values;
+    }
+
+    function populateWarehouseSelect() {
+        fetch('/api/stock/warehouses')
+            .then(res => res.json())
+            .then(data => {
+                const items = data.data || [];
+                const names = items.map(w => w.name);
+                ['transfer-source', 'transfer-destination', 'reconcile-warehouse'].forEach(id => {
+                    const select = document.getElementById(id);
+                    if (!select) return;
+                    select.innerHTML = names.map(name => `<option value="${name}">${name}</option>`).join('');
+                });
+                const dest = document.getElementById('transfer-destination');
+                if (dest && names.length > 1) dest.value = names[1];
+            });
+    }
+
+    function loadProducts() {
+        fetch('/api/products/?page=1&per_page=500')
+            .then(res => res.json())
+            .then(data => {
+                const products = data.data || [];
+                populateSkuSelect('transfer-sku', products);
+                populateSkuSelect('reconcile-sku', products);
+                populateSkuSelect('lot-sku', products);
+                document.getElementById('scanner-output').value = products[0]?.sku || '';
+                if (products.length && document.getElementById('system-qty')) {
+                    const sku = products[0].sku;
+                    const product = products.find(p => p.sku === sku);
+                    if (product) document.getElementById('system-qty').value = product.stock || 0;
+                }
+            });
+    }
+
+    function loadForecast() {
+        fetch('/api/reports/forecast')
+            .then(res => res.json())
+            .then(data => {
+                const body = document.getElementById('forecast-table-body');
+                if (!data.forecast || !data.forecast.length) {
+                    body.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No forecast available.</td></tr>';
+                    return;
+                }
+                body.innerHTML = data.forecast.map(item => `
+                    <tr>
+                        <td class="fw-bold text-info">${item.sku}</td>
+                        <td>${item.avg_daily_issue}</td>
+                        <td>${item.projected_7_day_need}</td>
+                        <td class="fw-bold text-warning">${item.recommended_reorder_qty}</td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    function loadLotHistory() {
+        const sku = document.getElementById('lot-sku').value;
+        if (!sku) return;
+        fetch(`/api/stock/lots/${encodeURIComponent(sku)}`)
+            .then(res => res.json())
+            .then(data => {
+                const body = document.getElementById('lot-table-body');
+                const items = data.data || [];
+                if (!items.length) {
+                    body.innerHTML = '<tr><td colspan="4" class="text-center text-muted">No lot data.</td></tr>';
+                    return;
+                }
+                body.innerHTML = items.map(item => `
+                    <tr>
+                        <td>${item.lot_number || '-'}</td>
+                        <td>${item.warehouse || '-'}</td>
+                        <td>${item.expiration_date || '-'}</td>
+                        <td class="fw-bold text-success">${item.quantity || 0}</td>
+                    </tr>
+                `).join('');
+            });
+    }
+
+    function stopScanner() {
+        if (activeScanner) {
+            activeScanner.stop().catch(() => {}).finally(() => {
+                activeScanner = null;
+            });
+        }
+    }
+
+    function startScanner() {
+        if (!window.Html5Qrcode) {
+            alert('Barcode scanner library not available in this browser.');
+            return;
+        }
+        const reader = document.getElementById('barcode-reader');
+        if (!reader) return;
+
+        stopScanner();
+        activeScanner = new Html5Qrcode('barcode-reader');
+        activeScanner.start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 240, height: 240 } },
+            (decodedText) => {
+                document.getElementById('scanner-output').value = decodedText;
+                document.getElementById('transfer-sku').value = decodedText;
+                document.getElementById('reconcile-sku').value = decodedText;
+                document.getElementById('lot-sku').value = decodedText;
+                stopScanner();
+            },
+            (errorMessage) => {
+                console.debug('Scanner error:', errorMessage);
+            }
+        ).catch(() => { alert('Unable to access the camera. Please allow camera permissions.'); });
+    }
+
+    document.getElementById('start-scan-btn').addEventListener('click', startScanner);
+
+    document.getElementById('transfer-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const payload = {
+            sku: document.getElementById('transfer-sku').value,
+            source_warehouse: document.getElementById('transfer-source').value,
+            destination_warehouse: document.getElementById('transfer-destination').value,
+            quantity: Number(document.getElementById('transfer-qty').value),
+            reason: document.getElementById('transfer-reason').value,
+            user: 'staff'
+        };
+        fetch('/api/stock/transfer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || data.error || 'Transfer complete');
+                loadProducts();
+            });
+    });
+
+    document.getElementById('reconcile-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const payload = {
+            sku: document.getElementById('reconcile-sku').value,
+            warehouse: document.getElementById('reconcile-warehouse').value,
+            system_quantity: Number(document.getElementById('system-qty').value),
+            physical_quantity: Number(document.getElementById('physical-qty').value),
+            reason: document.getElementById('reconcile-note').value || 'Stock count reconciliation',
+            user: 'staff'
+        };
+        fetch('/api/stock/reconcile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || data.error || 'Reconciled');
+                loadProducts();
+            });
+    });
+
+    document.getElementById('bulk-import-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const fileInput = document.getElementById('import-file');
+        if (!fileInput.files.length) return alert('Please choose a CSV or Excel file first.');
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        fetch('/api/products/import', {
+            method: 'POST',
+            body: formData
+        })
+            .then(res => res.json())
+            .then(data => {
+                alert(data.message || data.error || 'Import complete');
+                loadProducts();
+            });
+    });
+
+    document.getElementById('lot-sku').addEventListener('change', loadLotHistory);
+
+    populateWarehouseSelect();
+    loadProducts();
+    loadForecast();
+    loadLotHistory();
+</script>
+{% endblock %}

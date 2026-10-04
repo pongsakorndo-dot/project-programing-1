@@ -1,0 +1,22 @@
+[
+    {
+        "timestamp": "2026-09-30 23:16:29",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "system_quantity": 13,
+        "physical_quantity": 15,
+        "variance": 2,
+        "reason": "Cycle count",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:24:07",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "system_quantity": 13,
+        "physical_quantity": 15,
+        "variance": 2,
+        "reason": "Cycle count",
+        "user": "admin"
+    }
+]

@@ -1,0 +1,96 @@
+[
+    {
+        "timestamp": "2026-09-30 10:00:00",
+        "sku": "SKU-001",
+        "type": "in",
+        "change": 15,
+        "before": 0,
+        "after": 15,
+        "reason": "ยกล้อตสต็อกเริ่มต้น",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 22:51:22",
+        "sku": "SKU-003",
+        "type": "in",
+        "change": 5,
+        "before": 12,
+        "after": 17,
+        "reason": "Purchase",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:16:29",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "type": "transfer",
+        "source": "Main Warehouse",
+        "destination": "Branch A",
+        "change": -2,
+        "before": 15,
+        "after": 13,
+        "reason": "Transfer test",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:16:29",
+        "sku": "SKU-001",
+        "warehouse": "Branch A",
+        "type": "transfer",
+        "source": "Main Warehouse",
+        "destination": "Branch A",
+        "change": 2,
+        "before": 0,
+        "after": 2,
+        "reason": "Transfer test",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:16:29",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "type": "reconcile",
+        "change": 2,
+        "before": 13,
+        "after": 15,
+        "reason": "Cycle count",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:24:07",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "type": "transfer",
+        "source": "Main Warehouse",
+        "destination": "Branch A",
+        "change": -2,
+        "before": 15,
+        "after": 13,
+        "reason": "Transfer test",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:24:07",
+        "sku": "SKU-001",
+        "warehouse": "Branch A",
+        "type": "transfer",
+        "source": "Main Warehouse",
+        "destination": "Branch A",
+        "change": 2,
+        "before": 2,
+        "after": 4,
+        "reason": "Transfer test",
+        "user": "admin"
+    },
+    {
+        "timestamp": "2026-09-30 23:24:07",
+        "sku": "SKU-001",
+        "warehouse": "Main Warehouse",
+        "type": "reconcile",
+        "change": 2,
+        "before": 13,
+        "after": 15,
+        "reason": "Cycle count",
+        "user": "admin"
+    }
+]
